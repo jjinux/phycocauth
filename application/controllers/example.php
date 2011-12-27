@@ -12,8 +12,8 @@ class Example extends CI_Controller
 	//www.your_url.com/index.php/request_youtube
 	public function request_youtube()
 	{
-		$params['key'] = 'ENTER YOUR GOOGLE CONSUMER KEY';
-		$params['secret'] = 'ENTER YOUR GOOGLE CONSUMER SECRET';
+		$params['key'] = '296496462368.apps.googleusercontent.com';
+		$params['secret'] = 'DXm2w1n3iuW5zlPsJH7vEv5u';
 		$params['algorithm'] = 'HMAC-SHA1';
 		
 		$this->load->library('google_oauth', $params);
@@ -26,8 +26,8 @@ class Example extends CI_Controller
 	//once the user approves access of your application
 	public function access_youtube()
 	{
-		$params['key'] = 'ENTER YOUR GOOGLE CONSUMER KEY';
-		$params['secret'] = 'ENTER YOUR GOOGLE CONSUMER SECRET';
+		$params['key'] = '296496462368.apps.googleusercontent.com';
+		$params['secret'] = 'DXm2w1n3iuW5zlPsJH7vEv5u';
 		$params['algorithm'] = 'HMAC-SHA1';
 		
 		$this->load->library('google_oauth', $params);
@@ -42,7 +42,7 @@ class Example extends CI_Controller
 	//done the oauth steps
 	public function youtube_no_auth()
 	{
-		$params['apikey'] = 'ENTER YOUR GOOGLE YOUTUBE API KEY';
+		$params['apikey'] = 'AI39si78MsgHDFDeYiy3ffsi6firJrvTcjYV0_2yQoaD6Fz96saV04drjIzxcYfuSrnrw-5tUFFuCmA8G84H-CKh55b7vKYRZw';
 		
 		$this->load->library('youtube', $params);
 		echo $this->youtube->getKeywordVideoFeed('pac man');
@@ -52,9 +52,9 @@ class Example extends CI_Controller
 	//the oauth steps
 	public function youtube_auth()
 	{
-		$params['apikey'] = 'ENTER YOUR GOOGLE YOUTUBE API KEY';
-		$params['oauth']['key'] = 'ENTER YOUR GOOGLE CONSUMER KEY';
-		$params['oauth']['secret'] = 'ENTER YOUR GOOGLE CONSUMER SECRET';
+		$params['apikey'] = 'AI39si78MsgHDFDeYiy3ffsi6firJrvTcjYV0_2yQoaD6Fz96saV04drjIzxcYfuSrnrw-5tUFFuCmA8G84H-CKh55b7vKYRZw';
+		$params['oauth']['key'] = '296496462368.apps.googleusercontent.com';
+		$params['oauth']['secret'] = 'DXm2w1n3iuW5zlPsJH7vEv5u';
 		$params['oauth']['algorithm'] = 'HMAC-SHA1';
 		$params['oauth']['access_token'] = array('oauth_token'=>urlencode($this->session->userdata('oauth_token')),
 												 'oauth_token_secret'=>urlencode($this->session->userdata('oauth_token_secret')));
@@ -68,9 +68,9 @@ class Example extends CI_Controller
 		$videoPath = 'THE RELATIVE PATH ON YOUR SERVER TO THE VIDEO';
 		$videoType = 'THE CONTENT TYPE OF THE VIDEO'; //This is the mime type of the video ex: 'video/3gpp'
 		
-		$params['apikey'] = 'ENTER YOUR GOOGLE YOUTUBE API KEY';
-		$params['oauth']['key'] = 'ENTER YOUR GOOGLE CONSUMER KEY';
-		$params['oauth']['secret'] = 'ENTER YOUR GOOGLE CONSUMER SECRET';
+		$params['apikey'] = 'AI39si78MsgHDFDeYiy3ffsi6firJrvTcjYV0_2yQoaD6Fz96saV04drjIzxcYfuSrnrw-5tUFFuCmA8G84H-CKh55b7vKYRZw';
+		$params['oauth']['key'] = '296496462368.apps.googleusercontent.com';
+		$params['oauth']['secret'] = 'DXm2w1n3iuW5zlPsJH7vEv5u';
 		$params['oauth']['algorithm'] = 'HMAC-SHA1';
 		$params['oauth']['access_token'] = array('oauth_token'=>urlencode($this->session->userdata('oauth_token')),
 												 'oauth_token_secret'=>urlencode($this->session->userdata('oauth_token_secret')));
