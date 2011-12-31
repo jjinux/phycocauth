@@ -1,86 +1,130 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+/**
+ * This is a sample controller that combines the following:
+ * PHP, YouTube, OAuth2, CodeIgniter, CodeIgniter Youtube API Library, and the
+ * Google APIs Client Library for PHP.
+ *
+ * At the risk of boring you, I'm going to show you how to get this working
+ * from the ground up.
+ *
+ * Setup PHP:
+ *   This assumes you're running OS X 10.6.
+ *   See: http://stackoverflow.com/questions/1293484/easiest-way-to-activate-php-and-mysql-on-mac-os-10-6-snow-leopard-or-10-7-lio
+ *   Edit /etc/apache2/httpd.conf:
+ *     Uncomment "#LoadModule php5_module libexec/apache2/libphp5.so".
+ *   System Preferences >> Sharing:
+ *     Turn on Web sharing.
+ *   You can edit files in ~/Sites:
+ *     They'll be visible on: http://localhost/~yourusername/
+ *
+ * Setup CodeIgniter:
+ *   See: http://codeigniter.com/user_guide/installation/index.html
+ *   Grab it from: http://codeigniter.com/user_guide/installation/downloads.html
+ *   Uncompress it into ~/Sites, and remove the top-level directory.
+ *   Edit ~/Sites/application/config/config.php:
+ *     Set the encryption_key to something long and random.
+ *
+ * Setup the CodeIgniter Youtube API Library:
+ *   Follow the instructions here:
+ *     http://code.google.com/apis/youtube/articles/codeigniter_library.html
+ *   I'm guessing the only thing that really matters is:
+ *     application/libraries/youtube.php
+ *
+ * Setup the Google APIs Client Library for PHP:
+ *   Follow the instructions here:
+ *     http://code.google.com/p/google-api-php-client/
+ *   This should result in:
+ *     application/libraries/google-api-php-client
+ *
+ * Setup Google API access:
+ *   See: https://code.google.com/apis/console
+ *   Generate a client id, client secret, etc.:
+ *     Edit the defines below.
+ *   Register your redirect URI:
+ *     I used: http://localhost/~yourusername/index.php/example
+ *
+ * Setup a YouTube developer key:
+ *   See: http://code.google.com/apis/youtube/dashboard
+ *   I used localhost for the website.
+ *   Edit the define below.
+ *
+ * Try loading: http://localhost/~yourusername/index.php/example
+ *
+ * Notes:
+ *
+ *   * This is just a proof-of-concept.  It is not polished code.
+ *
+ *   * It'd be really helpful to integrate OAuth2 handling into
+ *     the CodeIgniter Youtube API Library directly.  That way,
+ *     it could handle refreshing the access token, and it could
+ *     handle passing the access token as a header.  See:
+ *     http://code.google.com/apis/youtube/2.0/developers_guide_protocol_oauth2.html
+ *
+ *  * If there are problems, it can be difficult to get debugging information.
+ *    Keep an eye on Apache's error logs.  I also find it helpful to hack the
+ *    library source code directly to add echo statements.  For instance,
+ *    it's helpful to edit application/libraries/youtube.php:_response_request
+ *    to print the request and the response.
+ *
+ *  * The CodeIgniter Youtube API Library doesn't use HTTPS.
+ */
+
+require_once 'application/libraries/google-api-php-client/src/apiClient.php';
+require_once 'application/libraries/google-api-php-client/src/contrib/apiPlusService.php';
+
+define('CLIENT_ID', '296496462368.apps.googleusercontent.com');
+define('CLIENT_SECRET', 'DXm2w1n3iuW5zlPsJH7vEv5u');
+define('DEVELOPER_KEY', 'AIzaSyBdPZB-suhI6C1QJ9x2RcgIFfZesbWgqMI');
+define('YOUTUBE_API_KEY', 'AI39si78MsgHDFDeYiy3ffsi6firJrvTcjYV0_2yQoaD6Fz96saV04drjIzxcYfuSrnrw-5tUFFuCmA8G84H-CKh55b7vKYRZw');
 
 class Example extends CI_Controller
 {
-	public function __construct()
+	public function index()
 	{
-		parent::__construct();
-		$this->load->library('session');
-		$this->load->helper('url');
-	}
+		session_start();
+		$client = new apiClient();
+		$redirectUri = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+		$client->setApplicationName('PHP, YouTube, OAuth2, and CodeIgniter Example');
+		$client->setClientId(CLIENT_ID);
+		$client->setClientSecret(CLIENT_SECRET);
+		$client->setRedirectUri($redirectUri);
+		$client->setDeveloperKey(DEVELOPER_KEY);
+		new apiPlusService($client);  // Sets the OAuth2 scope.
 
-	//CALL THIS METHOD FIRST BY GOING TO
-	//www.your_url.com/index.php/request_youtube
-	public function request_youtube()
-	{
-		$params['key'] = '296496462368.apps.googleusercontent.com';
-		$params['secret'] = 'DXm2w1n3iuW5zlPsJH7vEv5u';
-		$params['algorithm'] = 'HMAC-SHA1';
+		$this->load->library('youtube',
+			array('apikey' => YOUTUBE_API_KEY));
 
-		$this->load->library('google_oauth', $params);
-		$data = $this->google_oauth->get_request_token(site_url('example/access_youtube'));
-		$this->session->set_userdata('token_secret', $data['token_secret']);
-		redirect($data['redirect']);
-	}
+		// This example doesn't require authentication:
+		// header("Content-type: text/plain");
+		// echo "Here is the output:\n";
+		// echo $this->youtube->getKeywordVideoFeed('pac man');
 
-	//This method will be redirected to automatically
-	//once the user approves access of your application
-	public function access_youtube()
-	{
-		$params['key'] = '296496462368.apps.googleusercontent.com';
-		$params['secret'] = 'DXm2w1n3iuW5zlPsJH7vEv5u';
-		$params['algorithm'] = 'HMAC-SHA1';
+		if (isset($_GET['code']))
+		{
+			$client->authenticate();
+			$_SESSION['token'] = $client->getAccessToken();
+			header("Location: $redirectUri");
+		}
+		if (isset($_SESSION['token']))
+		{
+			$client->setAccessToken($_SESSION['token']);
+		}
+		if ( ! $client->getAccessToken())
+		{
+			$authUrl = $client->createAuthUrl();
+			echo "<a class='login' href='$authUrl'>Connect Me!</a>";
+		}
+		else
+		{
+			// The access token may have been updated lazily.
+			$_SESSION['token'] = $client->getAccessToken();
 
-		$this->load->library('google_oauth', $params);
-
-		$oauth = $this->google_oauth->get_access_token(false, $this->session->userdata('token_secret'));
-
-		$this->session->set_userdata('oauth_token', $oauth['oauth_token']);
-		$this->session->set_userdata('oauth_token_secret', $oauth['oauth_token_secret']);
-	}
-
-	//This method can be called without having
-	//done the oauth steps
-	public function youtube_no_auth()
-	{
-		$params['apikey'] = 'AI39si78MsgHDFDeYiy3ffsi6firJrvTcjYV0_2yQoaD6Fz96saV04drjIzxcYfuSrnrw-5tUFFuCmA8G84H-CKh55b7vKYRZw';
-
-		$this->load->library('youtube', $params);
-		echo $this->youtube->getKeywordVideoFeed('pac man');
-	}
-
-	//This method can be called after you executed
-	//the oauth steps
-	public function youtube_auth()
-	{
-		$params['apikey'] = 'AI39si78MsgHDFDeYiy3ffsi6firJrvTcjYV0_2yQoaD6Fz96saV04drjIzxcYfuSrnrw-5tUFFuCmA8G84H-CKh55b7vKYRZw';
-		$params['oauth']['key'] = '296496462368.apps.googleusercontent.com';
-		$params['oauth']['secret'] = 'DXm2w1n3iuW5zlPsJH7vEv5u';
-		$params['oauth']['algorithm'] = 'HMAC-SHA1';
-		$params['oauth']['access_token'] = array('oauth_token'=>urlencode($this->session->userdata('oauth_token')),
-												 'oauth_token_secret'=>urlencode($this->session->userdata('oauth_token_secret')));
-
-		$this->load->library('youtube', $params);
-		echo $this->youtube->getUserUploads();
-	}
-
-	public function direct_upload()
-	{
-		$videoPath = 'THE RELATIVE PATH ON YOUR SERVER TO THE VIDEO';
-		$videoType = 'THE CONTENT TYPE OF THE VIDEO'; //This is the mime type of the video ex: 'video/3gpp'
-
-		$params['apikey'] = 'AI39si78MsgHDFDeYiy3ffsi6firJrvTcjYV0_2yQoaD6Fz96saV04drjIzxcYfuSrnrw-5tUFFuCmA8G84H-CKh55b7vKYRZw';
-		$params['oauth']['key'] = '296496462368.apps.googleusercontent.com';
-		$params['oauth']['secret'] = 'DXm2w1n3iuW5zlPsJH7vEv5u';
-		$params['oauth']['algorithm'] = 'HMAC-SHA1';
-		$params['oauth']['access_token'] = array('oauth_token'=>urlencode($this->session->userdata('oauth_token')),
-												 'oauth_token_secret'=>urlencode($this->session->userdata('oauth_token_secret')));
-		$this->load->library('youtube', $params);
-
-		$metadata = '<entry xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:yt="http://gdata.youtube.com/schemas/2007"><media:group><media:title type="plain">Test Direct Upload</media:title><media:description type="plain">Test Direct Uploading.</media:description><media:category scheme="http://gdata.youtube.com/schemas/2007/categories.cat">People</media:category><media:keywords>test</media:keywords></media:group></entry>';
-		echo $this->youtube->directUpload($videoPath, $videoType, $metadata);
+			header("Content-type: text/plain");
+			$accessToken = json_decode($_SESSION['token'])->access_token;
+			echo "Here is the output:\n";
+			echo $this->youtube->getUserUploads('default', array(
+				'access_token' => $accessToken,
+				'prettyprint' => 'true'));
+		}
 	}
 }
-
-/* End of file example.php */
-/* Location: ./application/controllers/example.php */
