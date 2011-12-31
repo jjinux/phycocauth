@@ -1,8 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /**
  * This is a sample controller that combines the following:
- * PHP, YouTube, OAuth2, CodeIgniter, CodeIgniter Youtube API Library, and the
- * Google APIs Client Library for PHP.
+ * PHP, YouTube, OAuth2, CodeIgniter, the CodeIgniter Youtube API Library, and
+ * the Google APIs Client Library for PHP.
  *
  * At the risk of boring you, I'm going to show you how to get this working
  * from the ground up.

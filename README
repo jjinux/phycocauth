@@ -1,0 +1,7 @@
+This is a sample project that combines the following:  PHP, YouTube,
+OAuth2, CodeIgniter, the CodeIgniter Youtube API Library, and the Google
+APIs Client Library for PHP.
+
+See application/controllers/example.php for the interesting code.
+
+Project URL: http://code.google.com/p/php-youtube-oauth2-codeigniter-example/
