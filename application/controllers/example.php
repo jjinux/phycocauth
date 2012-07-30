@@ -13,9 +13,7 @@
  */
 
 /**
- * This is a sample controller that combines the following:
- * PHP, YouTube, OAuth2, CodeIgniter, the CodeIgniter Youtube API Library, and
- * the Google APIs Client Library for PHP.
+ * See the project README for an explanation of what this is.
  *
  * At the risk of boring you, I'm going to show you how to get this working
  * from the ground up.

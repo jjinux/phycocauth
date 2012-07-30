@@ -2,6 +2,13 @@ This is a sample project that combines the following:  PHP, YouTube,
 OAuth2, CodeIgniter, the CodeIgniter Youtube API Library, and the Google
 APIs Client Library for PHP.
 
+I'm releasing this proof of concept to show that it's possible to integrate
+the  CodeIgniter Youtube API Library with the Google APIs Client Library for
+PHP. Once version 3 of the YouTube API is ready, the CodeIgniter Youtube API
+Library will no longer be necessary. All you'll need is the Google APIs Client
+Library for PHP which will be able to handle OAuth2 as well as the YouTube
+API.
+
 See application/controllers/example.php for the interesting code.
 
 Project URL: http://code.google.com/p/phycocauth
